@@ -17,8 +17,8 @@ class ViewController: UIViewController , AMVideoRangeSliderDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let url = NSBundle.mainBundle().URLForResource("video", withExtension: "mp4")
-        self.videoRangeSlider.videoAsset = AVAsset(URL: url!)
+        let url = Bundle.main.url(forResource: "video", withExtension: "mp4")
+        self.videoRangeSlider.videoAsset = AVAsset(url: url!)
         self.videoRangeSlider.delegate = self
         
     }

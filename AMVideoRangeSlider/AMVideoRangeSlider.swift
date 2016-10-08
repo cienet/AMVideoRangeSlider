@@ -38,12 +38,12 @@ internal class AMVideoRangeSliderThumbLayer: CAShapeLayer {
         self.setNeedsDisplay()
     }
     
-    override func drawInContext(ctx: CGContext) {
-        CGContextMoveToPoint(ctx, self.bounds.width/2, self.bounds.height/5)
-        CGContextAddLineToPoint(ctx, self.bounds.width/2 , self.bounds.height - self.bounds.height/5)
+    override func draw(in ctx: CGContext) {
+        ctx.move(to: CGPoint(x: self.bounds.width/2, y: self.bounds.height/5))
+        ctx.addLine(to: CGPoint(x: self.bounds.width/2, y: self.bounds.height - self.bounds.height/5))
         
-        CGContextSetStrokeColorWithColor(ctx, UIColor.whiteColor().CGColor)
-        CGContextStrokePath(ctx)
+        ctx.setStrokeColor(UIColor.white.cgColor)
+        ctx.strokePath()
     }
 }
 
@@ -51,13 +51,13 @@ internal class AMVideoRangeSliderTrackLayer: CAShapeLayer {
     
     weak var rangeSlider : AMVideoRangeSlider?
     
-    override func drawInContext(ctx: CGContext) {
+    override func draw(in ctx: CGContext) {
         if let slider = rangeSlider {
             let lowerValuePosition = CGFloat(slider.positionForValue(slider.lowerValue))
             let upperValuePosition = CGFloat(slider.positionForValue(slider.upperValue))
             let rect = CGRect(x: lowerValuePosition, y: 0.0, width: upperValuePosition - lowerValuePosition, height: bounds.height)
-            CGContextSetFillColorWithColor(ctx, slider.sliderTintColor.CGColor)
-            CGContextFillRect(ctx, rect)
+            ctx.setFillColor(slider.sliderTintColor.cgColor)
+            ctx.fill(rect)
         }
     }
 }
@@ -68,78 +68,78 @@ public protocol AMVideoRangeSliderDelegate {
     func rangeSliderUpperThumbValueChanged()
 }
 
-public class AMVideoRangeSlider: UIControl {
+open class AMVideoRangeSlider: UIControl {
     
-    public var middleValue = 0.0 {
+    open var middleValue = 0.0 {
         didSet {
             self.updateLayerFrames()
         }
     }
     
-    public var minimumValue: Double = 0.0 {
+    open var minimumValue: Double = 0.0 {
         didSet {
             self.updateLayerFrames()
         }
     }
     
-    public var maximumValue: Double = 1.0 {
+    open var maximumValue: Double = 1.0 {
         didSet {
             self.updateLayerFrames()
         }
     }
     
-    public var lowerValue: Double = 0.0 {
+    open var lowerValue: Double = 0.0 {
         didSet {
             self.updateLayerFrames()
         }
     }
     
-    public var upperValue: Double = 1.0 {
+    open var upperValue: Double = 1.0 {
         didSet {
             self.updateLayerFrames()
         }
     }
     
-    public var videoAsset : AVAsset? {
+    open var videoAsset : AVAsset? {
         didSet {
             self.generateVideoImages()
         }
     }
     
-    public var currentTime : CMTime {
+    open var currentTime : CMTime {
         return CMTimeMakeWithSeconds(self.videoAsset!.duration.seconds * self.middleValue, self.videoAsset!.duration.timescale)
     }
     
-    public var startTime : CMTime! {
+    open var startTime : CMTime! {
         return CMTimeMakeWithSeconds(self.videoAsset!.duration.seconds * self.lowerValue, self.videoAsset!.duration.timescale)
     }
     
-    public var stopTime : CMTime! {
+    open var stopTime : CMTime! {
         return CMTimeMakeWithSeconds(self.videoAsset!.duration.seconds * self.upperValue, self.videoAsset!.duration.timescale)
     }
     
-    public var rangeTime : CMTimeRange! {
+    open var rangeTime : CMTimeRange! {
         let lower = self.videoAsset!.duration.seconds * self.lowerValue
         let upper = self.videoAsset!.duration.seconds * self.upperValue
         let duration = CMTimeMakeWithSeconds(upper - lower, self.videoAsset!.duration.timescale)
         return CMTimeRangeMake(self.startTime, duration)
     }
     
-    public var sliderTintColor = UIColor(red:0.97, green:0.71, blue:0.19, alpha:1.00) {
+    open var sliderTintColor = UIColor(red:0.97, green:0.71, blue:0.19, alpha:1.00) {
         didSet {
-            self.lowerThumbLayer.backgroundColor = self.sliderTintColor.CGColor
-            self.upperThumbLayer.backgroundColor = self.sliderTintColor.CGColor
+            self.lowerThumbLayer.backgroundColor = self.sliderTintColor.cgColor
+            self.upperThumbLayer.backgroundColor = self.sliderTintColor.cgColor
             
         }
     }
     
-    public var middleThumbTintColor : UIColor! {
+    open var middleThumbTintColor : UIColor! {
         didSet {
-            self.middleThumbLayer.backgroundColor = self.middleThumbTintColor.CGColor
+            self.middleThumbLayer.backgroundColor = self.middleThumbTintColor.cgColor
         }
     }
     
-    public var delegate : AMVideoRangeSliderDelegate?
+    open var delegate : AMVideoRangeSliderDelegate?
     
     var middleThumbLayer = AMVideoRangeSliderThumbLayer()
     var lowerThumbLayer = AMVideoRangeSliderThumbLayer()
@@ -157,7 +157,7 @@ public class AMVideoRangeSlider: UIControl {
         return self.bounds.height + 10
     }
     
-    public override var frame: CGRect {
+    open override var frame: CGRect {
         didSet {
             self.updateLayerFrames()
         }
@@ -173,7 +173,7 @@ public class AMVideoRangeSlider: UIControl {
         self.commonInit()
     }
     
-    public override func layoutSubviews() {
+    open override func layoutSubviews() {
         self.updateLayerFrames()
     }
     
@@ -188,13 +188,13 @@ public class AMVideoRangeSlider: UIControl {
         self.layer.addSublayer(self.lowerThumbLayer)
         self.layer.addSublayer(self.upperThumbLayer)
         
-        self.middleThumbLayer.backgroundColor = UIColor.greenColor().CGColor
-        self.lowerThumbLayer.backgroundColor = self.sliderTintColor.CGColor
-        self.upperThumbLayer.backgroundColor = self.sliderTintColor.CGColor
+        self.middleThumbLayer.backgroundColor = UIColor.green.cgColor
+        self.lowerThumbLayer.backgroundColor = self.sliderTintColor.cgColor
+        self.upperThumbLayer.backgroundColor = self.sliderTintColor.cgColor
         
-        self.trackLayer.contentsScale = UIScreen.mainScreen().scale
-        self.lowerThumbLayer.contentsScale = UIScreen.mainScreen().scale
-        self.upperThumbLayer.contentsScale = UIScreen.mainScreen().scale
+        self.trackLayer.contentsScale = UIScreen.main.scale
+        self.lowerThumbLayer.contentsScale = UIScreen.main.scale
+        self.upperThumbLayer.contentsScale = UIScreen.main.scale
         
         self.updateLayerFrames()
     }
@@ -219,12 +219,12 @@ public class AMVideoRangeSlider: UIControl {
         CATransaction.commit()
     }
     
-    func positionForValue(value: Double) -> Double {
+    func positionForValue(_ value: Double) -> Double {
         return Double(self.bounds.width - self.thumbWidth) * (value - self.minimumValue) / (self.maximumValue - self.minimumValue) + Double(self.thumbWidth / 2.0)
     }
     
-    public override func beginTrackingWithTouch(touch: UITouch, withEvent event: UIEvent?) -> Bool {
-        self.previousLocation = touch.locationInView(self)
+    open override func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
+        self.previousLocation = touch.location(in: self)
         
         if self.lowerThumbLayer.frame.contains(self.previousLocation) {
             self.lowerThumbLayer.highlighted = true
@@ -237,12 +237,12 @@ public class AMVideoRangeSlider: UIControl {
         return self.lowerThumbLayer.highlighted || self.upperThumbLayer.highlighted || self.middleThumbLayer.highlighted
     }
     
-    func boundValue(value: Double, toLowerValue lowerValue: Double, upperValue: Double) -> Double {
+    func boundValue(_ value: Double, toLowerValue lowerValue: Double, upperValue: Double) -> Double {
         return min(max(value, lowerValue), upperValue)
     }
     
-    public override func continueTrackingWithTouch(touch: UITouch, withEvent event: UIEvent?) -> Bool {
-        let location = touch.locationInView(self)
+    open override func continueTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
+        let location = touch.location(in: self)
         
         let deltaLocation = Double(location.x - self.previousLocation.x)
         let deltaValue = (self.maximumValue - self.minimumValue) * deltaLocation / Double(self.bounds.width - self.thumbWidth)
@@ -273,18 +273,18 @@ public class AMVideoRangeSlider: UIControl {
             }
         }
         
-        self.sendActionsForControlEvents(.ValueChanged)
+        self.sendActions(for: .valueChanged)
         return true
     }
     
-    public override func endTrackingWithTouch(touch: UITouch?, withEvent event: UIEvent?) {
+    open override func endTracking(_ touch: UITouch?, with event: UIEvent?) {
         self.lowerThumbLayer.highlighted = false
         self.middleThumbLayer.highlighted = false
         self.upperThumbLayer.highlighted = false
     }
     
     func generateVideoImages() {
-        dispatch_async(dispatch_get_main_queue(), {
+        DispatchQueue.main.async(execute: {
             
             self.lowerValue = 0.0
             self.upperValue = 1.0
@@ -304,35 +304,35 @@ public class AMVideoRangeSlider: UIControl {
             
             for index in 1...numberOfImages {
                 let point = CMTimeMakeWithSeconds(assetDuration/Double(index), 600)
-                Times += [NSValue(CMTime: point)]
+                Times += [NSValue(time: point)]
             }
             
-            Times = Times.reverse()
+            Times = Times.reversed()
             
             let imageWidth = self.frame.width/CGFloat(numberOfImages)
             var imageFrame = CGRect(x: 0, y: 2, width: imageWidth, height: self.frame.height-4)
             
-            imageGenerator.generateCGImagesAsynchronouslyForTimes(Times) { (requestedTime, image, actualTime, result, error) in
+            imageGenerator.generateCGImagesAsynchronously(forTimes: Times) { (requestedTime, image, actualTime, result, error) in
                 if error == nil {
                     
-                    if result == AVAssetImageGeneratorResult.Succeeded {
+                    if result == AVAssetImageGeneratorResult.succeeded {
                         
-                        dispatch_async(dispatch_get_main_queue(), {
-                            let imageView = UIImageView(image: UIImage(CGImage: image!))
-                            imageView.contentMode = .ScaleAspectFill
+                        DispatchQueue.main.async(execute: {
+                            let imageView = UIImageView(image: UIImage(cgImage: image!))
+                            imageView.contentMode = .scaleAspectFill
                             imageView.clipsToBounds = true
                             imageView.frame = imageFrame
                             imageFrame.origin.x += imageWidth
-                            self.insertSubview(imageView, atIndex:1)
+                            self.insertSubview(imageView, at:1)
                         })
                     }
                     
-                    if result == AVAssetImageGeneratorResult.Failed {
+                    if result == AVAssetImageGeneratorResult.failed {
                         print("Generating Fail")
                     }
                     
                 } else {
-                    print("Error at generating images : \(error!.description)")
+                    print("Error at generating images : \(error!.localizedDescription)")
                 }
             }
             
