@@ -69,7 +69,7 @@ public protocol AMVideoRangeSliderDelegate {
   func rangeSliderUpperThumbValueChanged()
 }
 
-open class AMVideoRangeSlider: UIControl {
+@IBDesignable open class AMVideoRangeSlider: UIControl {
 
   /// Only valid when show middle thumb
   open var middleValue = 0.0 {
